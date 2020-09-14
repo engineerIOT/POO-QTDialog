@@ -4,9 +4,9 @@ FindDialog::FindDialog(QWidget *parent)
     : QDialog(parent)
 {
     label = new QLabel(tr("Find &what"));
-    QLineEdit *qLineEdit = new QLineEdit;//lineEdit = new QLineEdit;
+    QLineEdit *lineEdit = new QLineEdit;//lineEdit = new QLineEdit;
     //lineEdit = new QLine;
-    label->setBuddy(qLineEdit);
+    label->setBuddy(lineEdit);
 
 
     caseCheckBox = new QCheckBox(tr("Match &case"));
@@ -17,6 +17,15 @@ FindDialog::FindDialog(QWidget *parent)
     findButton->setEnabled(false);
 
     closeButton = new QPushButton(tr("Close"));
+
+    connect (lineEdit, SIGNAL(textChanged(const QString &)),
+             this, SLOT (enableFindButton(const QString &)));
+
+    connect(findButton, SIGNAL(clicked()),
+            this, SLOT(findClicked()));
+
+    connect(closeButton, SIGNAL(clicked()),
+            this, SLOT(close()));
 
     QHBoxLayout *topLeftLayout = new QHBoxLayout;   //criando um novo objeto dinamicamente do tipo QHBoxLayout
     topLeftLayout->addWidget(label);
@@ -44,11 +53,19 @@ FindDialog::FindDialog(QWidget *parent)
 }
 
 void FindDialog::findClicked(){
+    QString text = lineEdit->text();
+    Qt::CaseSensitivity cs = caseCheckBox->isChecked() ? Qt::CaseSensitive
+                                                       : Qt::CaseSensitive;
+    if (backwardCheckBox->isChecked()){
+        emit findPrevious(text, cs);
+    } else {
+        findNext(text, cs);
+    }
 
 }
 
 void FindDialog::enableFindButton(const QString &text){
-
+    findButton->setEnabled(!text.isEmpty());
 }
 
 FindDialog::~FindDialog()
